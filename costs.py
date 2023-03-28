@@ -2,9 +2,9 @@ import random
 import json
 
 ##Costs model
-mean1 = 1
+mean1 = 4
 stddev1 = 0.5
-mean2 = 2
+mean2 = 9
 stddev2 = 1
 
 c0= 0
@@ -19,11 +19,11 @@ print("Total costs for land use 2:", c2)
 
 
 
-# Create a dictionary to with the costs
+# Create a dictionary to with the costs always to a posotive value with abs
 costs = {
     "Costs LU0": 0,
-    "Costs LU1": c1,
-    "Costs LU2": c2,
+    "Costs LU1": abs(c1),
+    "Costs LU2": abs(c2),
     
 }
 

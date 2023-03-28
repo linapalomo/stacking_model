@@ -5,7 +5,7 @@ c = [-0, -1.5, -2.5] #C0, C1, C2 for testing
 
 # Define the constraint coefficients
 A = [[0, 7, 5], [0, 3, 5], [-1, 1, 0]]
-b = [100, 200, -300]
+b = [100, -200, -300]
 
 # Define the bounds on the variables
 x0_bounds = (0, 36) #parcels LU0

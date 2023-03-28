@@ -1,3 +1,5 @@
+##this model contains a data frame that where i will try to add the info in
+#a better way to perform the optimization.
 import random
 import json
 import time
@@ -28,7 +30,8 @@ lu1_benefit2 = benefits_data['b2_lu1']
 lu2_benefit1 = benefits_data['b1_lu2']
 lu2_benefit2 = benefits_data['b2_lu2']
 
-## Generate the landscapes and save them in a json file.
+
+
 lu0 = {"cost0": lu0_cost, "b1_lu0": lu0_benefit1, "b2_lu0": lu0_benefit2}
 lu1 = {"c1": lu1_cost, "b1_lu1": lu1_benefit1, "b2_lu1": lu1_benefit2}
 lu2 = {"c2": lu2_cost, "b1_lu2": lu2_benefit1, "b2_lu2": lu2_benefit2}
@@ -56,14 +59,12 @@ print("Landscape data saved to", filename)
 
 # Total number of land parcels =200
 
-# Total number of land parcels =200
-
-n_plots = 200
+n_plots = 100
 LU_prob = np.random.dirichlet(np.ones(3), size=1).tolist()[0]
 LU0_parcels = int(n_plots * LU_prob[0])
 LU1_parcels = int(n_plots * LU_prob[1])
 LU2_parcels = n_plots - LU0_parcels - LU1_parcels
-n_plots = 200
+n_plots = 100
 
 
 LU_distribution = {
@@ -80,6 +81,19 @@ print("LU1: ", LU1_parcels)
 print("LU2: ", LU2_parcels)
 print("Distribution saved in LU_distribution file")
 print("SAVE IT")
+
+## Generate the landscapes create a dataframe and save them in a json file.
+
+land = {"landuse": ["LU0", "LU1", "LU2"],
+        "costs":[lu0_cost, lu1_cost, lu2_cost],
+        "benefit1":[lu0_benefit1, lu1_benefit1, lu2_benefit1], 
+        "benefit2":[lu0_benefit2, lu1_benefit2, lu2_benefit2], "count":[LU0_parcels, LU1_parcels, LU2_parcels] }
+
+df = pd.DataFrame(land)
+
+print(df)
+
+df.to_json('landscapedf.json', orient='records')
 
 #obtain the total benefits in the land distribution
 total_benefit1_LU1= LU1_parcels * lu1_benefit1
@@ -104,55 +118,6 @@ with open('total_benefits.json', 'w') as f:
     json.dump(total_benefits, f)
 
 print("total benefits are saved in total_benefits.json")
-
-'''
-
-###generate the random distribution of parcels 
-total_plots = 100
-land_uses = [lu0, lu1, lu2]
-
-distribution = [random.choice(land_uses) for _ in range(total_plots)]
-
-filename = "distribution.json"
-
-with open(filename, "w") as f:
-    json.dump(distribution, f, indent=4)
-
-print("Land use distribution saved to", filename)
-
-# Timestamp to keep track of different versions of the distribution
-timestamp = int(time.time())
-
-filename = "distribution_{}.json".format(timestamp)
-
-with open(filename, "w") as f:
-    json.dump(distribution, f, indent=4)
-
-print("Land use distribution saved to", filename)
-
-
-# Load the distribution data from the JSON file
-with open("distribution.json", "r") as f:
-    distribution = json.load(f)
-
-# Create a 2D array with the same number of rows and columns as the number of plots
-grid = np.array(distribution).reshape(10, 10)
-
-# Plot the grid using matplotlib's imshow function
-plt.imshow(grid, cmap="hot")
-
-# Add a colorbar to the plot
-plt.colorbar()
-
-# Add a title to the plot
-plt.title("Plot Distribution")
-
-# Show the plot
-plt.show()
-
-'''
-
-
 
 
 

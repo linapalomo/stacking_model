@@ -57,16 +57,15 @@ print("Landscape data saved to", filename)
 
 # Total number of land parcels =200
 
-parcel_numbers = list(range(200))
-
-LU_prob = np.random.dirichlet(np.ones(3), size=1).tolist()[0]
-LU0, LU1, LU2 = [int(prob * 100) for prob in LU_prob]
-
+# Total number of land parcels =200
 
 n_plots = 200
-LU0_parcels = int(n_plots * LU0 / 100)
-LU1_parcels = int(n_plots * LU1 / 100)
-LU2_parcels = int(n_plots * LU2 / 100)
+LU_prob = np.random.dirichlet(np.ones(3), size=1).tolist()[0]
+LU0_parcels = int(n_plots * LU_prob[0])
+LU1_parcels = int(n_plots * LU_prob[1])
+LU2_parcels = n_plots - LU0_parcels - LU1_parcels
+n_plots = 200
+
 
 
 LU_distribution = {

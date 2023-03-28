@@ -11,11 +11,11 @@ stddev_tb2 = 0.5 #standard deviation benefit lu2
 tb_lu1_total = np.random.normal(mean_tb1, stddev_tb1) 
 tb_lu2_total = np.random.normal(mean_tb2, stddev_tb2)
 
-# Define percentage for each benefit variable in each land use
+# Define percentage for each benefit variable in each land use, tengo que cambiar esto conforme a lambda
 b1_lu1_pct = 0.6 #percentage of B1 in LU1
 b2_lu1_pct = 0.4 #percentage of B2 in LU1
-b1_lu2_pct = 0.7 #percentage of B1 in LU2
-b2_lu2_pct = 0.3 #percentage of B2 in LU2
+b1_lu2_pct = 0.8 #percentage of B1 in LU2
+b2_lu2_pct = 0.2 #percentage of B2 in LU2
 
 # Calculate the benefit variables for each land use
 b1_lu0 = 0
