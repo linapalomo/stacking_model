@@ -58,8 +58,8 @@ for i in df['x'].keys():
     lp_prob += df['x'][i] >= 0, f"non_negative_constraint_{i}"
     
 lp_prob += pulp.lpSum(df['x']) == 100, "Total Number of lands Constraint"
-lp_prob += pulp.lpSum(df['benefit1']*df['x']) >= pulp.lpSum(df['count']*df['benefit1']), "Requer1 Constraint"
-lp_prob += pulp.lpSum(df['benefit2']*df['x']) >= pulp.lpSum(df['count']*df['benefit2']), "Requer2 Constraint"
+lp_prob += pulp.lpSum(df['benefit1']*df['x']) >= pulp.lpSum(df['count']*df['benefit1']), "benefit1 Constraint"
+lp_prob += pulp.lpSum(df['benefit2']*df['x']) >= pulp.lpSum(df['count']*df['benefit2']), "benefit2 Constraint"
 
 
 # Create a linear expression for the left-hand side of the inequality
