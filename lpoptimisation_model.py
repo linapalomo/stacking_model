@@ -37,9 +37,10 @@ lp_prob = pulp.LpProblem("Costs_minimizing", pulp.LpMinimize)
 
 # Add the objective function using the dataframe
 lp_prob += pulp.lpSum((df['costs'][0]*df['x'] * df['costs'][1]*df['x'] + df['costs'][2]*df['x'])), "Total Cost"
-#lp_prob += pulp.lpSum([df.loc[i, 'costs'] * df['x'] * df['count'] for i in df.index]) + \
-#pulp.lpSum([df.loc[i, 'benefit1'] * df['x'] * df[ 'count'] for i in df.index]) + \
-#pulp.lpSum([df.loc[i, 'benefit2'] * df['x'] * df['count'] for i in df.index])
+
+lp_prob += pulp.lpSum([df.loc[i, 'costs'] * df['x'] * df['count'] for i in df.index]) + \
+pulp.lpSum([df.loc[i, 'benefit1'] * df['x'] * df[ 'count'] for i in df.index]) + \
+pulp.lpSum([df.loc[i, 'benefit2'] * df['x'] * df['count'] for i in df.index])
 
 #lp_prob += pulp.lpSum([df.loc[i, 'costs'] * x[i] * df.loc[i, 'count'] for i in df.index]) + pulp.lpSum([x[i] * df.loc[i, 'count'] for i in df.index])
 
@@ -62,6 +63,7 @@ lp_prob += pulp.lpSum(df['benefit1']*df['x']) >= pulp.lpSum(df['count']*df['bene
 lp_prob += pulp.lpSum(df['benefit2']*df['x']) >= pulp.lpSum(df['count']*df['benefit2']), "benefit2 Constraint"
 
 
+
 # Create a linear expression for the left-hand side of the inequality
 #lhs_expr = pulp.lpSum([df.loc[i, 'benefit1'] * df['x'][i] for i in df.index])
 
@@ -75,7 +77,7 @@ lp_prob += pulp.lpSum(df['benefit2']*df['x']) >= pulp.lpSum(df['count']*df['bene
 
 #it must consider all 200 plots
 total_plots=100
-#lp_prob += pulp.lpSum([x[i] * df.loc[i, 'count'] for i in df.index]) == total_plots
+#lp_prob += pulp.lpSum([df['x'][i] * df.loc[i, 'count'] for i in df.index]) == total_plots
 #lp_prob += pulp.lpSum([df['x'][i]]) == total_plots, "total_count"  # ensure that the sum of all decision variables is equal to 200
 # The factor 1000 is used to ensure that the right-hand side is negative when z = 0 and positive when z = 1
 
@@ -89,13 +91,22 @@ for variable in lp_prob.variables():
     print(variable.name, "=", variable.varValue)
     # add a print statement for each variable to show its value
     if variable.name == 'x_0':
-        print("x_0 value =", variable.varValue)
+        print(" value =", variable.varValue)
     elif variable.name == 'x_1':
         print("x_1 value =", variable.varValue)
     elif variable.name == 'x_2':
         print("x_2 value =", variable.varValue)
 
+for variable in lp_prob.variables():
+    total=variable.varValue * df['costs']
+    print (variable.name,total)
+
+
+
+
+
 print("Total cost =", pulp.value(lp_prob.objective))
+
 
 # Print the constraint values
 for constraint in lp_prob.constraints.values():
@@ -114,7 +125,7 @@ if lhs_value >= total_benefit2:
     print("Second constraint is met!")
 else:
     print("Second constraint is not met.")
-    
-print(df['x'])
+
+
 
 

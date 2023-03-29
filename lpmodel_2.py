@@ -82,6 +82,12 @@ print("LU2: ", LU2_parcels)
 print("Distribution saved in LU_distribution file")
 print("SAVE IT")
 
+
+totalcost1= LU1_parcels * lu1_cost
+totalcost2= LU2_parcels * lu2_cost
+total = totalcost1 + totalcost2
+print("total costs", total)
+
 ## Generate the landscapes create a dataframe and save them in a json file.
 
 land = {"landuse": ["LU0", "LU1", "LU2"],
