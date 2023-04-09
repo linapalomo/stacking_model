@@ -1,4 +1,4 @@
-##working, i have to change the values for values from our costs and benefits model
+##MODELO LANDUSE###
 
 import pulp
 from pulp import *
