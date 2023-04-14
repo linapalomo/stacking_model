@@ -1,6 +1,8 @@
 import json
 import pulp
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 #landuse model
 
@@ -14,7 +16,15 @@ benefits = np.array(data['benefits'])
 benefit1 = np.array(data['benefit1'])
 benefit2 = np.array(data['benefit2'])
 
+def plot_landuse_grid(landuse_types, title):
+    landuse_grid = np.array(landuse_types).reshape(2, 5)
+    
+    sns.heatmap(landuse_grid, annot=True, cmap="coolwarm", cbar=False, xticklabels=False, yticklabels=False, square=True, linewidths=1, linecolor='black', fmt="d")
+    plt.title(title)
+    plt.show()
 
+    
+plot_landuse_grid(initial_landuse_types, 'Initial Land Use Distribution')
 
 # Define the linear programming problem to minimize the total costs of the landscape
 problem = pulp.LpProblem("Minimize_Total_Costs", pulp.LpMinimize)
@@ -57,3 +67,5 @@ optimized_total_benefit1 = sum(benefit1[i][product_type] for i, product_type in 
 optimized_total_benefit2 = sum(benefit2[i][product_type] for i, product_type in enumerate(optimized_landuse_types))
 print(f"Optimized total benefit1: {optimized_total_benefit1}")
 print(f"Optimized total benefit2: {optimized_total_benefit2}")
+
+plot_landuse_grid(optimized_landuse_types, 'Optimized Land Use Distribution')
