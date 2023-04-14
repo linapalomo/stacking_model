@@ -1,30 +1,24 @@
 
-import numpy as np
-import json
-from numpy.random import default_rng
+#generate the random costs of every plot/parcel
 
+import random
 
-LU_prob = np.random.dirichlet(np.ones(3), size=1).tolist()[0]
-LU0, LU1, LU2 = [int(prob * 100) for prob in LU_prob]
+# Set the mean and standard deviation for the normal distribution
+mean = 20
+std_dev = 2
 
+#three landuses
+landuses=["LUO", "LU1", "LU2"]
 
-n_plots = 200
-LU0_parcels = int(n_plots * LU0 / 100)
-LU1_parcels = int(n_plots * LU1 / 100)
-LU2_parcels = int(n_plots * LU2 / 100)
+# Generate two random costs for each of the 10 products
+num_parcels = 10
+landuse_dist = []
+for i in range(num_parcels):
+    cost1 = round(random.gauss(mean, std_dev), 2)
+    cost2 = round(random.gauss(mean, std_dev), 2)
+    landuse_type = random.choice(landuses)
+    landuse_dist.append((cost1, cost2, landuse_type))
 
-
-LU_distribution = {
-    "LU0": LU0_parcels,
-    "LU1": LU1_parcels,
-    "LU2": LU2_parcels
-}
-
-with open("LU_distribution.json", "w") as f:
-    json.dump(LU_distribution, f)
-
-
-print(f'Percentage of LU0: {LU0}%, number of cells: {LU0_parcels}')
-print(f'Percentage of LU1: {LU1}%, number of cells: {LU1_parcels}')
-print(f'Percentage of LU2: {LU2}%, number of cells: {LU2_parcels}')
-print(LU0, LU1, LU2)
+# Print the costs for each parcel
+for i, (cost1, cost2, landuse_type) in enumerate(landuse_dist):
+    print(f"Parcel {i+1}: Cost 1 = {cost1}, Cost 2 = {cost2}, Type = {landuse_type}")

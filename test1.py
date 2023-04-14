@@ -1,74 +1,52 @@
-##working, i have to change the values for values from our costs and benefits model
-
+import random
 import pulp
-from pulp import *
-import json
+import numpy as np
 
-# Define the problem
-prob = LpProblem("Landuse in Regions Allocation Problem", LpMinimize)
+# Generate random costs for p1 and p2, and set p3 cost to 0
+costs = np.random.normal(20, 4, size=(10, 2))
+costs = np.hstack((costs, np.zeros((10, 1))))
 
-# Define the decision variables
-landuse = ["LU0", "LU1", "LU2"]
-regions = ["R1", "R2", "R3"]
+# Randomly assign initial product types to each location
+initial_product_types = [random.randint(1, 3) for _ in range(10)]
 
-#bring the costs from the costs model:
-with open('costs.json', 'r') as f:
-    cost_data = json.load(f)
+# Count the number of each product type in the initial assignment
+product_type_counts = {j: initial_product_types.count(j) for j in range(1, 4)}
+  
 
-lu0_cost = cost_data['Costs LU0']
-lu1_cost = cost_data['Costs LU1']
-lu2_cost = cost_data['Costs LU2']
+# Print current locations, costs, and product types
+print("Initial Locations, Costs, and Product Types:")
+initial_total_cost = 0
+for i, (cost, product_type) in enumerate(zip(costs, initial_product_types)):
+    initial_cost = cost[product_type - 1]
+    initial_total_cost += initial_cost
+    print(f"Location {i+1}: Costs (p1, p2, p3) = {tuple(cost)}, Initial Product Type: p{product_type}, Cost: {initial_cost}")
 
-# Define the landuse costs
-landuse_costs = {"LU0": lu0_cost, "LU1": lu1_cost, "LU2": lu2_cost}
+print(f"Initial total cost: {initial_total_cost}")
 
-# Define the maximum capacity for each region
-capacity = {"R1": 39, "R2": 48, "R3": 13}
 
-# Define the conservation/additional costs for each landuse and region
-#do i need to generate the numbers from normal distributions?
-additional_costs = {"LU0": {"R1": 2, "R2": -1, "R3": 1},
-                 "LU1": {"R1": 2, "R2": -1, "R3": 1},
-                 "LU2": {"R1": 2, "R2": -1, "R3": 1}}
+# Define the linear programming problem
+problem = pulp.LpProblem("Minimize_Total_Costs", pulp.LpMinimize)
 
-#bring the current distribution of land uses from the landscape model:
-with open('LU_distribution.json', 'r') as f:
-    count_data = json.load(f)
-
-lu0_count = count_data['LU0']
-lu1_count = count_data['LU1']
-lu2_count = count_data['LU2']
-
-# Define the current number each landuse
-landscape = {"LU0": lu0_count, "LU1": lu1_count, "LU2": lu2_count}
-
-# Create the decision variable x[i][j]
-x = LpVariable.dicts("x", [(i, j) for i in landuse for j in regions], lowBound=0, cat='Integer')
+# Define decision variables
+x = pulp.LpVariable.dicts("x", (range(10), range(1, 4)), cat='Binary')
 
 # Define the objective function
-prob += lpSum([additional_costs[i][j] * x[(i, j)] for i in landuse for j in regions]) + lpSum([landuse_costs[i] * x[(i, j)] for i in landuse for j in regions])
+problem += pulp.lpSum([costs[i][j-1] * x[i][j] for i in range(10) for j in range(1, 4)])
 
+# Define constraints
+for i in range(10):
+    problem += pulp.lpSum([x[i][j] for j in range(1, 4)]) == 1
 
-# Define the constraints
-for i in landuse:
-    prob += lpSum([x[(i, j)] for j in regions]) == landscape[i]
-for j in regions:
-    prob += lpSum([x[(i, j)] for i in landuse]) <= capacity[j]
+# Add constraint to maintain the same number of each product type
+for j in range(1, 4):
+    problem += pulp.lpSum([x[i][j] for i in range(10)]) == product_type_counts[j]
 
-# Solve the problem
-prob.solve()
-#solver = pulp.GLPK_CMD()   # Replace CPLEX_PY with the solver of your choice (e.g., COIN_CMD, GUROBI, GLPK, etc.)
-#pulp.pulpTestAll()  # Test the availability of the solver
-#pulp.LpSolverDefault = solver  # Set the solver as the default solver for PuLP
+# Solve the optimization problem
+problem.solve()
 
-# Print the results
-for i in landuse:
-    for j in regions:
-        print("Allocating %s to %s: %d units" % (i, j, x[(i, j)].varValue))
-print("Total Cost = ", value(prob.objective))
-
-
-
-#solver = pulp.COIN_CMD()  # Replace CPLEX_PY with the solver of your choice (e.g., COIN_CMD, GUROBI, GLPK, etc.)
-#pulp.pulpTestAll()  # Test the availability of the solver
-#pulp.LpSolverDefault = solver  # Set the solver as the default solver for PuLP
+# Print optimized product types for each location
+print("\nOptimized Locations and Product Types:")
+for i in range(10):
+    for j in range(1, 4):
+        if x[i][j].varValue == 1:
+            print(f"Location {i+1}: Assigned Product Type: p{j}")
