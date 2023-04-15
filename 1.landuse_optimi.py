@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-#landuse model
+#landuse model WORKING-----
 
 # Load the data from the JSON file
 with open('data.json', 'r') as file:

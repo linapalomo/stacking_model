@@ -2,6 +2,8 @@ import random
 import numpy as np
 import json
 
+np.random.seed(0)
+
 # Generate random costs for LU1 and LU2, and set LU cost to 0
 costs = np.random.normal(40, 1, size=(10, 2))
 costs = np.hstack((np.zeros((10, 1)), costs))
@@ -10,7 +12,7 @@ costs = np.hstack((np.zeros((10, 1)), costs))
 initial_landuse_types = [random.randint(0, 2) for _ in range(10)]
 
 #benefits (ESS) values are randomly generated for each parcel
-benefits=np.random.normal(15,3, size= (10,1))
+benefits=np.random.normal(10, size= (10,2))
 
 #calculate the benefits1 and benefit2 values for each land use
 proportions={1:0.6, 2:0.5}

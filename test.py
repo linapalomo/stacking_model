@@ -1,24 +1,41 @@
+#initial data.py
+import numpy as np
+import json
 
-#generate the random costs of every plot/parcel
+np.random.seed(42)
 
-import random
+# Generate random costs
+costs = np.random.normal(8, 0.5, size=(10, 2))
+costs = np.column_stack((costs, np.zeros((10, 1))))
 
-# Set the mean and standard deviation for the normal distribution
-mean = 20
-std_dev = 2
+# Generate random product types
+initial_product_types = np.random.randint(0, 3, 10)
 
-#three landuses
-landuses=["LUO", "LU1", "LU2"]
+# Generate random tmarketing values
+tmarketing = np.random.normal(10, 2, size=(10, 2))
 
-# Generate two random costs for each of the 10 products
-num_parcels = 10
-landuse_dist = []
-for i in range(num_parcels):
-    cost1 = round(random.gauss(mean, std_dev), 2)
-    cost2 = round(random.gauss(mean, std_dev), 2)
-    landuse_type = random.choice(landuses)
-    landuse_dist.append((cost1, cost2, landuse_type))
+# Calculate marketing1 and marketing2 values
+marketing1_values = np.zeros((10, 3))
+marketing2_values = np.zeros((10, 3))
 
-# Print the costs for each parcel
-for i, (cost1, cost2, landuse_type) in enumerate(landuse_dist):
-    print(f"Parcel {i+1}: Cost 1 = {cost1}, Cost 2 = {cost2}, Type = {landuse_type}")
+proportions = [0, 0.6, 0.5]
+for i in range(10):
+    for j in range(1, 3):
+        marketing1_values[i][j] = tmarketing[i][j-1] * proportions[j]
+        marketing2_values[i][j] = tmarketing[i][j-1] * (1 - proportions[j])
+
+# Save data to JSON file
+data = {
+    "costs": costs.tolist(),
+    "initial_product_types": initial_product_types.tolist(),
+    "tmarketing": tmarketing.tolist(),
+    "marketing1_values": marketing1_values.tolist(),
+    "marketing2_values": marketing2_values.tolist()
+}
+
+with open("data.json", "w") as outfile:
+    json.dump(data, outfile)
+
+# Print initial data
+print("Current costs:", np.choose(initial_product_types, costs.T))
+print("Current product types:", initial_product_types)

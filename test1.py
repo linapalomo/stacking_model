@@ -1,52 +1,66 @@
-import random
-import pulp
+#new optimization
+import json
+from pulp import LpProblem, LpMinimize, LpVariable, lpSum, LpStatus, LpBinary
 import numpy as np
 
-# Generate random costs for p1 and p2, and set p3 cost to 0
-costs = np.random.normal(20, 4, size=(10, 2))
-costs = np.hstack((costs, np.zeros((10, 1))))
+# Load data from JSON file
+with open("data.json", "r") as infile:
+    data = json.load(infile)
 
-# Randomly assign initial product types to each location
-initial_product_types = [random.randint(1, 3) for _ in range(10)]
+costs = data["costs"]
+initial_product_types = data["initial_product_types"]
+tmarketing = data["tmarketing"]
+marketing1_values = data["marketing1_values"]
+marketing2_values = data["marketing2_values"]
 
-# Count the number of each product type in the initial assignment
-product_type_counts = {j: initial_product_types.count(j) for j in range(1, 4)}
-  
+n_locations = len(costs)
+n_product_types = len(costs[0])
 
-# Print current locations, costs, and product types
-print("Initial Locations, Costs, and Product Types:")
-initial_total_cost = 0
-for i, (cost, product_type) in enumerate(zip(costs, initial_product_types)):
-    initial_cost = cost[product_type - 1]
-    initial_total_cost += initial_cost
-    print(f"Location {i+1}: Costs (p1, p2, p3) = {tuple(cost)}, Initial Product Type: p{product_type}, Cost: {initial_cost}")
-
-print(f"Initial total cost: {initial_total_cost}")
-
-
-# Define the linear programming problem
-problem = pulp.LpProblem("Minimize_Total_Costs", pulp.LpMinimize)
+# Create optimization problem
+problem = LpProblem("Minimize Total Costs", LpMinimize)
 
 # Define decision variables
-x = pulp.LpVariable.dicts("x", (range(10), range(1, 4)), cat='Binary')
+x = [[LpVariable(f"x_{i}_{j}", cat=LpBinary) for j in range(n_product_types)] for i in range(n_locations)]
 
-# Define the objective function
-problem += pulp.lpSum([costs[i][j-1] * x[i][j] for i in range(10) for j in range(1, 4)])
+# Add constraints
+for i in range(n_locations):
+    problem += lpSum(x[i][j] for j in range(n_product_types)) == 1
 
-# Define constraints
-for i in range(10):
-    problem += pulp.lpSum([x[i][j] for j in range(1, 4)]) == 1
+for j in range(n_product_types):
+    problem += lpSum(x[i][j] * marketing1_values[i][j] for i in range(n_locations)) >= sum(
+        marketing1_values[i][j] for i in range(n_locations) if initial_product_types[i] == j)
+    problem += lpSum(x[i][j] * marketing2_values[i][j] for i in range(n_locations)) >= sum(
+        marketing2_values[i][j] for i in range(n_locations) if initial_product_types[i] == j)
 
-# Add constraint to maintain the same number of each product type
-for j in range(1, 4):
-    problem += pulp.lpSum([x[i][j] for i in range(10)]) == product_type_counts[j]
+# Define objective function
+problem += lpSum(x[i][j] * costs[i][j] for i in range(n_locations) for j in range(n_product_types))
 
-# Solve the optimization problem
+# Solve the problem
 problem.solve()
 
-# Print optimized product types for each location
-print("\nOptimized Locations and Product Types:")
-for i in range(10):
-    for j in range(1, 4):
-        if x[i][j].varValue == 1:
-            print(f"Location {i+1}: Assigned Product Type: p{j}")
+if LpStatus[problem.status] == "Optimal":
+    # Get optimized product types
+    optimized_product_types = []
+    for i in range(n_locations):
+        for j in range(n_product_types):
+            if x[i][j].varValue == 1:
+                optimized_product_types.append(j)
+
+    print("Optimized product types:", optimized_product_types)
+    print("Initial total costs:", sum(np.choose(initial_product_types, np.array(costs).T)))
+    print("Optimized total costs:", sum(np.choose(optimized_product_types, np.array(costs).T)))
+
+
+    # Calculate the total of marketing1 and marketing2 for initial and optimized distributions
+    initial_total_marketing1 = [sum(marketing1_values[i][j] for i in range(n_locations) if initial_product_types[i] == j) for j in range(n_product_types)]
+    initial_total_marketing2 = [sum(marketing2_values[i][j] for i in range(n_locations) if initial_product_types[i] == j) for j in range(n_product_types)]
+    optimized_total_marketing1 = [sum(x[i][j].varValue * marketing1_values[i][j] for i in range(n_locations)) for j in range(n_product_types)]
+    optimized_total_marketing2 = [sum(x[i][j].varValue * marketing2_values[i][j] for i in range(n_locations)) for j in range(n_product_types)]
+
+    print("Initial total marketing1:", initial_total_marketing1)
+    print("Optimized total marketing1:", optimized_total_marketing1)
+    print("Initial total marketing2:", initial_total_marketing2)
+    print("Optimized total marketing2:", optimized_total_marketing2)
+
+else:
+    print("The optimization problem is infeasible.")
