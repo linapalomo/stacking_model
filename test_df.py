@@ -1,6 +1,6 @@
 import json
 import pandas as pd
-##print initial distribution
+##print initial distribution in a datafram for better view, anaylisis 
 
 with open("data.json", "r") as f:
     data = json.load(f)
