@@ -22,6 +22,7 @@ benefits = np.random.normal(10, 2, size=(10, 2))
 benefit1_values = np.zeros((10, 3))
 benefit2_values = np.zeros((10, 3))
 
+#i can change the proportions for the benefits any time
 proportions = [0, 0.6, 0.5]
 for i in range(10):
     for j in range(1, 3):
