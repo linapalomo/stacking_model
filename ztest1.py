@@ -1,5 +1,6 @@
 #landuse model
-
+#this model will optimise the landuse distribution keeping the original land use values
+####WORKING COMPLETE    ###
 import json
 import numpy as np
 from pulp import LpProblem, LpMinimize, LpVariable, LpStatus, lpSum
@@ -7,10 +8,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load initial data
-with open("data.json", "r") as f:
+with open("dataz.json", "r") as f:
     data = json.load(f)
 
-n_parcels = 10
+n_parcels = 4
 n_landuse_types = 3
 
 initial_landuse_types = data["initial_landuse_types"]
@@ -21,7 +22,7 @@ benefit2_values = np.array(data["benefit2_values"])
 
 #printing a plot with the initial lnd use distribution for visual comparison
 def plot_landuse_grid(landuse_types, title):
-    landuse_grid = np.array(landuse_types).reshape(2, 5)
+    landuse_grid = np.array(landuse_types).reshape(2, 2)
     
     sns.heatmap(landuse_grid, annot=True, cmap="coolwarm", cbar=False, xticklabels=False, yticklabels=False, square=True, linewidths=1, linecolor='black', fmt="d")
     plt.title(title)

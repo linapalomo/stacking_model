@@ -1,66 +1,85 @@
-#new optimization
+##WORKING COMPLETE
+#this model will optimise the land use distribution costs with the restriction that the ESS (benefits in the code)
+# will stay the same amount or it will increase. Not net loss.
 import json
 from pulp import LpProblem, LpMinimize, LpVariable, lpSum, LpStatus, LpBinary
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Load data from JSON file
 with open("data.json", "r") as infile:
     data = json.load(infile)
 
 costs = data["costs"]
-initial_product_types = data["initial_product_types"]
-tmarketing = data["tmarketing"]
-marketing1_values = data["marketing1_values"]
-marketing2_values = data["marketing2_values"]
+initial_landuse_types = data["initial_landuse_types"]
+#benefit1 = data["benefitLU1"]
+#benefit2= data["benefitLU2"]
+benefit1_values = data["benefit1_values"]
+benefit2_values = data["benefit2_values"]
+initial_benefit1=data['Total_ESS1']
+initial_benefit2=data['Total_ESS2']
 
-n_locations = len(costs)
-n_product_types = len(costs[0])
+n_parcels = 10
+n_landuse_types = 3
 
-# Create optimization problem
-problem = LpProblem("Minimize Total Costs", LpMinimize)
+#print land use distribution
+def plot_landuse_grid(landuse_types, title):
+    landuse_grid = np.array(landuse_types).reshape(2, 5)
+    
+    sns.heatmap(landuse_grid, annot=True, cmap="coolwarm", cbar=False, xticklabels=False, yticklabels=False, square=True, linewidths=1, linecolor='black', fmt="d")
+    plt.title(title)
+    plt.show()
 
-# Define decision variables
-x = [[LpVariable(f"x_{i}_{j}", cat=LpBinary) for j in range(n_product_types)] for i in range(n_locations)]
 
-# Add constraints
-for i in range(n_locations):
-    problem += lpSum(x[i][j] for j in range(n_product_types)) == 1
+# Optimization problem
+problem = LpProblem("Minimize_Total_Costs", LpMinimize)
 
-for j in range(n_product_types):
-    problem += lpSum(x[i][j] * marketing1_values[i][j] for i in range(n_locations)) >= sum(
-        marketing1_values[i][j] for i in range(n_locations) if initial_product_types[i] == j)
-    problem += lpSum(x[i][j] * marketing2_values[i][j] for i in range(n_locations)) >= sum(
-        marketing2_values[i][j] for i in range(n_locations) if initial_product_types[i] == j)
+# Decision variables
+x = [[LpVariable(f"x_{i}_{j}", 0,1, cat="Integer") for j in range(n_landuse_types)] for i in range(n_parcels)]
 
-# Define objective function
-problem += lpSum(x[i][j] * costs[i][j] for i in range(n_locations) for j in range(n_product_types))
+# Objective function
+problem += lpSum(x[i][j] * costs[i][j] for i in range(n_parcels) for j in range(n_landuse_types))
 
-# Solve the problem
+# Constraints
+for i in range(n_parcels):
+    problem += lpSum(x[i][j] for j in range(n_landuse_types)) == 1
+
+for j in range(n_landuse_types):
+    problem += lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels)) >= sum(
+        benefit1_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j)
+    problem += lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels)) >= sum(
+        benefit2_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j)
+
+
 problem.solve()
 
 if LpStatus[problem.status] == "Optimal":
-    # Get optimized product types
-    optimized_product_types = []
-    for i in range(n_locations):
-        for j in range(n_product_types):
+    # Get optimized land Use
+    optimized_landuse_types = []
+    for i in range(n_parcels):
+        for j in range(n_landuse_types):
             if x[i][j].varValue == 1:
-                optimized_product_types.append(j)
+                optimized_landuse_types.append(j)
 
-    print("Optimized product types:", optimized_product_types)
-    print("Initial total costs:", sum(np.choose(initial_product_types, np.array(costs).T)))
-    print("Optimized total costs:", sum(np.choose(optimized_product_types, np.array(costs).T)))
+    print("Optimized Land Use:", optimized_landuse_types)
+    print("Initial total costs:", sum(np.choose(initial_landuse_types, np.array(costs).T)))
+    print("Optimized total costs:", sum(np.choose(optimized_landuse_types, np.array(costs).T)))
+    print( "Total_ESS1", sum(np.choose(optimized_landuse_types, np.array(benefit1_values).T))) #####new
+    print("Total_ESS2",sum(np.choose(optimized_landuse_types, np.array(benefit2_values).T))) #new
 
+    # Calculate the total of benefit1 and benefit2 for initial and optimized distributions
+    initial_total_benefit1 = [sum(benefit1_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j) for j in range(n_landuse_types)]
+    initial_total_benefit2 = [sum(benefit2_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j) for j in range(n_landuse_types)]
+    optimized_total_benefit1 = [sum(x[i][j].varValue * benefit1_values[i][j] for i in range(n_parcels)) for j in range(n_landuse_types)]
+    optimized_total_benefit2 = [sum(x[i][j].varValue * benefit2_values[i][j] for i in range(n_parcels)) for j in range(n_landuse_types)]
 
-    # Calculate the total of marketing1 and marketing2 for initial and optimized distributions
-    initial_total_marketing1 = [sum(marketing1_values[i][j] for i in range(n_locations) if initial_product_types[i] == j) for j in range(n_product_types)]
-    initial_total_marketing2 = [sum(marketing2_values[i][j] for i in range(n_locations) if initial_product_types[i] == j) for j in range(n_product_types)]
-    optimized_total_marketing1 = [sum(x[i][j].varValue * marketing1_values[i][j] for i in range(n_locations)) for j in range(n_product_types)]
-    optimized_total_marketing2 = [sum(x[i][j].varValue * marketing2_values[i][j] for i in range(n_locations)) for j in range(n_product_types)]
-
-    print("Initial total marketing1:", initial_total_marketing1)
-    print("Optimized total marketing1:", optimized_total_marketing1)
-    print("Initial total marketing2:", initial_total_marketing2)
-    print("Optimized total marketing2:", optimized_total_marketing2)
+    print("Initial total benefit1/ESS1:", initial_total_benefit1)
+    print("Optimized total benefit1/ESS1:", optimized_total_benefit1)
+    print("Initial total Benefit2/ESS2:", initial_total_benefit2)
+    print("Optimized total benefit2/ESS2:", optimized_total_benefit2)
 
 else:
-    print("The optimization problem is infeasible.")
+    print("Sad!. The optimization problem is infeasible.")
+    
+plot_landuse_grid(optimized_landuse_types, 'Optimized Land Use Distribution with no ESS loss')

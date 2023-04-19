@@ -10,22 +10,22 @@ import json
 #np.random.seed(0) #will keep the same number random generated in every run
 ####i have to change the seed number###
 
-# Generate random costs
-costs1 = np.random.normal(300, 10, size=10) #mean ,standard dev
-costs2= np.random.normal(100, 8, size=10)
-costs = np.column_stack((np.zeros((10, 1)),costs1, costs2))
+# Generate random costs size here=parcels
+costs1 = np.random.normal(300, 10, size=4) #mean ,standard dev
+costs2= np.random.normal(100, 8, size=4)
+costs = np.column_stack((np.zeros((4, 1)),costs1, costs2))
 
 
 # Generate random Land Uses
-initial_landuse_types = np.random.randint(0, 3, 10)
+initial_landuse_types = np.random.randint(0, 3, 4)
 
 # Generate random benefits/ESS values
-benefit1 = np.random.normal(12, 2, size=10) #i can change the media a standard deviation
-benefit2 = np.random.normal(19, 1, size=10)
+benefit1 = np.random.normal(12, 2, size=4) #i can change the media a standard deviation
+benefit2 = np.random.normal(19, 1, size=4)
 
 # Calculate benefit1 and benefit2 values
-benefit1_values = np.zeros((10, 3))
-benefit2_values = np.zeros((10, 3))
+benefit1_values = np.zeros((4, 3))
+benefit2_values = np.zeros((4, 3))
 
 #i can change the proportions for the benefits any time
 proportions = {
@@ -34,7 +34,7 @@ proportions = {
 }
    
 
-for i in range(10):
+for i in range(4):
     for j in range(1,3):
         LU1_p = proportions['LU1'][j]
         LU2_p = proportions["LU2"][j]
@@ -55,7 +55,7 @@ data = {
     "Total_ESS2":sum(np.choose(initial_landuse_types, benefit2_values.T)) #new
 }
 
-with open("data.json", "w") as outfile:
+with open("dataz.json", "w") as outfile:
     json.dump(data, outfile)
 
 # Print initial data

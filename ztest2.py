@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load data from JSON file
-with open("data.json", "r") as infile:
+with open("dataz.json", "r") as infile:
     data = json.load(infile)
 
 costs = data["costs"]
@@ -24,7 +24,7 @@ n_landuse_types = len(costs[0])
 
 #print land use distribution
 def plot_landuse_grid(landuse_types, title):
-    landuse_grid = np.array(landuse_types).reshape(2, 5)
+    landuse_grid = np.array(landuse_types).reshape(2, 2)
     
     sns.heatmap(landuse_grid, annot=True, cmap="coolwarm", cbar=False, xticklabels=False, yticklabels=False, square=True, linewidths=1, linecolor='black', fmt="d")
     plt.title(title)

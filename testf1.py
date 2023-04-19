@@ -16,6 +16,9 @@ n_landuse_types = 3
 
 initial_landuse_types = data["initial_landuse_types"]
 costs = np.array(data["costs"])
+benefit1_values = np.array(data["benefit1_values"])
+benefit2_values = np.array(data["benefit2_values"])
+
 
 #printing a plot with the initial lnd use distribution for visual comparison
 def plot_landuse_grid(landuse_types, title):
@@ -58,6 +61,10 @@ if LpStatus[problem.status] == "Optimal":
     print("Optimized Land Use distribution:", optimized_landuse_types)
     print("Initial total costs:", sum(np.choose(initial_landuse_types, costs.T)))
     print("Optimized total costs:", sum(np.choose(optimized_landuse_types, costs.T)))
+    print("Optimized total ESS1:", sum(np.choose(optimized_landuse_types, benefit1_values.T)))
+    print("Optimized total ESS2:", sum(np.choose(optimized_landuse_types, benefit2_values.T)))
+
+
 
 else:
     print("Sad! The optimization problem is infeasible.")
