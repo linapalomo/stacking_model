@@ -3,7 +3,7 @@
 #this model will optimise the land use distribution costs with the restriction that the ESS (benefits in the code)
 # will stay the same amount or it will increase. Not net loss.
 import json
-from pulp import LpProblem, LpMinimize, LpVariable, lpSum, LpStatus, LpBinary
+from pulp import LpProblem, LpMinimize, LpVariable, lpSum, LpStatus
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -35,7 +35,7 @@ def plot_landuse_grid(landuse_types, title):
 problem = LpProblem("Minimize Total Costs", LpMinimize)
 
 # Decision variables
-x = [[LpVariable(f"x_{i}_{j}", cat=LpBinary) for j in range(n_landuse_types)] for i in range(n_parcels)]
+x = [[LpVariable(f"x_{i}_{j}", 0, 1, cat="Integer") for j in range(n_landuse_types)] for i in range(n_parcels)]
 
 # Objective function
 problem += lpSum(x[i][j] * costs[i][j] for i in range(n_parcels) for j in range(n_landuse_types))
@@ -44,13 +44,21 @@ problem += lpSum(x[i][j] * costs[i][j] for i in range(n_parcels) for j in range(
 # Constraints
 for i in range(n_parcels):
     problem += lpSum(x[i][j] for j in range(n_landuse_types)) == 1
+    
+# i think is finally working this one
+initial_total_benefit1 = sum(benefit1_values[i][initial_landuse_types[i]] for i in range(n_parcels))
+initial_total_benefit2 = sum(benefit2_values[i][initial_landuse_types[i]] for i in range(n_parcels))
 
-for j in range(n_landuse_types):
+problem += lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types)) >= initial_total_benefit1
+problem += lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types)) >= initial_total_benefit2
+
+#this is working but not compltetely
+'''for j in range(n_landuse_types):
     problem += lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels)) >= sum(
         benefit1_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j)
     problem += lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels)) >= sum(
         benefit2_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j)
-
+'''
 #for j in range(n_landuse_types):
  #   problem += lpSum(x[i][j] * benefit1_values[i][j] for i in n_parcels for j in n_landuse_types) >= sum(
   #      benefit1_values[i][j] for i in n_parcels if initial_landuse_types[i] == j)

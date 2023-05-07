@@ -11,7 +11,7 @@ import seaborn as sns
 with open("dataz.json", "r") as f:
     data = json.load(f)
 
-n_parcels = 4
+n_parcels = 10
 n_landuse_types = 3
 
 initial_landuse_types = data["initial_landuse_types"]
@@ -22,7 +22,7 @@ benefit2_values = np.array(data["benefit2_values"])
 
 #printing a plot with the initial lnd use distribution for visual comparison
 def plot_landuse_grid(landuse_types, title):
-    landuse_grid = np.array(landuse_types).reshape(2, 2)
+    landuse_grid = np.array(landuse_types).reshape(2, 5)
     
     sns.heatmap(landuse_grid, annot=True, cmap="coolwarm", cbar=False, xticklabels=False, yticklabels=False, square=True, linewidths=1, linecolor='black', fmt="d")
     plt.title(title)
@@ -61,8 +61,8 @@ if LpStatus[problem.status] == "Optimal":
     print("Optimized Land Use distribution:", optimized_landuse_types)
     print("Initial total costs:", sum(np.choose(initial_landuse_types, costs.T)))
     print("Optimized total costs:", sum(np.choose(optimized_landuse_types, costs.T)))
-    print("Optimized total ESS1:", sum(np.choose(optimized_landuse_types, benefit1_values.T)))
-    print("Optimized total ESS2:", sum(np.choose(optimized_landuse_types, benefit2_values.T)))
+    print("Optimized total ES1:", sum(np.choose(optimized_landuse_types, benefit1_values.T)))
+    print("Optimized total ES2:", sum(np.choose(optimized_landuse_types, benefit2_values.T)))
 
 
 

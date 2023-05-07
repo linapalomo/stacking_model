@@ -11,21 +11,44 @@ import json
 ####i have to change the seed number###
 
 # Generate random costs size here=parcels
-costs1 = np.random.normal(300, 10, size=4) #mean ,standard dev
-costs2= np.random.normal(100, 8, size=4)
-costs = np.column_stack((np.zeros((4, 1)),costs1, costs2))
+def generate_costs(mean, std_dev, num_parcels):
+    return np.random.normal(mean, std_dev, num_parcels)
 
+costs1 = generate_costs(300, 10, 10)
+costs2= generate_costs(100, 8, 10)
+costs = np.column_stack((np.zeros((10, 1)),costs1, costs2))
 
 # Generate random Land Uses
-initial_landuse_types = np.random.randint(0, 3, 4)
+initial_landuse_types = np.random.randint(0, 3, 10)
+
 
 # Generate random benefits/ESS values
-benefit1 = np.random.normal(12, 2, size=4) #i can change the media a standard deviation
-benefit2 = np.random.normal(19, 1, size=4)
+
+
+
+def generate_benefits(mean1, std_dev1, mean2, std_dev2, corr_coef, num_parcels):
+    mean = [mean1, mean2]
+    cov = [[std_dev1**2, corr_coef*std_dev1*std_dev2],
+           [corr_coef*std_dev1*std_dev2, std_dev2**2]]
+    
+
+    benefit1, benefit2 = np.random.multivariate_normal(mean, cov, num_parcels).T
+
+    return np.column_stack((benefit1, benefit2))
+
+benefits_numbers = generate_benefits(mean1=12, std_dev1=2, mean2=19, std_dev2=1, corr_coef=0.8, num_parcels=10)
+
+benefit1 = benefits_numbers[:, 0]
+benefit2 = benefits_numbers[:, 1]
+
+print(benefit1, benefit2)
+
+"""benefit1 = np.random.normal(12, 2, size=10) #i can change the media a standard deviation
+benefit2 = np.random.normal(19, 1, size=10)"""
 
 # Calculate benefit1 and benefit2 values
-benefit1_values = np.zeros((4, 3))
-benefit2_values = np.zeros((4, 3))
+benefit1_values = np.zeros((10, 3))
+benefit2_values = np.zeros((10, 3))
 
 #i can change the proportions for the benefits any time
 proportions = {
@@ -34,14 +57,14 @@ proportions = {
 }
    
 
-for i in range(4):
+for i in range(10):
     for j in range(1,3):
         LU1_p = proportions['LU1'][j]
         LU2_p = proportions["LU2"][j]
-        benefit1_values[i][1]=benefit1[i] * LU1_p
-        benefit2_values[i][1]=benefit1[i] * (1-LU1_p)
-        benefit1_values[i][2]=benefit2[i] * LU2_p
-        benefit2_values[i][2]=benefit2[i] * (1-LU2_p)
+        benefit1_values[i][j]=benefit1[i] * LU1_p
+        benefit2_values[i][j]=benefit1[i] * (1-LU1_p)
+        benefit1_values[i][j]=benefit2[i] * LU2_p
+        benefit2_values[i][j]=benefit2[i] * (1-LU2_p)
 
 # Save data to JSON file
 data = {
@@ -61,10 +84,10 @@ with open("dataz.json", "w") as outfile:
 # Print initial data
 print("Current costs:", sum(np.choose(initial_landuse_types, costs.T)))
 print("Current Land uses:", initial_landuse_types)
-print("Current ESS1:", np.choose(initial_landuse_types, benefit1_values.T))
-print("Current ESS2:", np.choose(initial_landuse_types, benefit2_values.T))
-print("Total ESS1:", sum(np.choose(initial_landuse_types, benefit1_values.T)))
-print("Total ESS2:", sum(np.choose(initial_landuse_types, benefit2_values.T)))
+print("Current ES1:", np.choose(initial_landuse_types, benefit1_values.T))
+print("Current ES2:", np.choose(initial_landuse_types, benefit2_values.T))
+print("Total ES1:", sum(np.choose(initial_landuse_types, benefit1_values.T)))
+print("Total ES2:", sum(np.choose(initial_landuse_types, benefit2_values.T)))
 
 
 #print(type(data))

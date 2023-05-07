@@ -24,7 +24,7 @@ n_landuse_types = len(costs[0])
 
 #print land use distribution
 def plot_landuse_grid(landuse_types, title):
-    landuse_grid = np.array(landuse_types).reshape(2, 2)
+    landuse_grid = np.array(landuse_types).reshape(2, 5)
     
     sns.heatmap(landuse_grid, annot=True, cmap="coolwarm", cbar=False, xticklabels=False, yticklabels=False, square=True, linewidths=1, linecolor='black', fmt="d")
     plt.title(title)
@@ -41,21 +41,61 @@ x = [[LpVariable(f"x_{i}_{j}", cat=LpBinary) for j in range(n_landuse_types)] fo
 problem += lpSum(x[i][j] * costs[i][j] for i in range(n_parcels) for j in range(n_landuse_types))
 
 
+#initial_benefit1_total = sum(benefit1_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types))
+#initial_benefit2_total = sum(benefit2_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types))
+
+
+
 # Constraints
 for i in range(n_parcels):
     problem += lpSum(x[i][j] for j in range(n_landuse_types)) == 1
+    
+# i think is finally working this one
+initial_total_benefit1 = sum(benefit1_values[i][initial_landuse_types[i]] for i in range(n_parcels))
+initial_total_benefit2 = sum(benefit2_values[i][initial_landuse_types[i]] for i in range(n_parcels))
+
+problem += lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types)) >= initial_total_benefit1
+problem += lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types)) >= initial_total_benefit2
+
+
+'''# Calculate the initial benefit1 and benefit2 totals for each landuse
+initial_benefit1_totals = [sum(benefit1_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j) for j in range(n_landuse_types)]
+initial_benefit2_totals = [sum(benefit2_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j) for j in range(n_landuse_types)]
 
 for j in range(n_landuse_types):
-    problem += lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels)) >= sum(
-        benefit1_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j)
-    problem += lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels)) >= sum(
-        benefit2_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j)
 
-#for j in range(n_landuse_types):
- #   problem += lpSum(x[i][j] * benefit1_values[i][j] for i in n_parcels for j in n_landuse_types) >= sum(
-  #      benefit1_values[i][j] for i in n_parcels if initial_landuse_types[i] == j)
-   # problem += lpSum(x[i][j] * benefit2_values[i][j] for i in n_parcels for j in n_landuse_types) >= sum(
-       # benefit2_values[i][j] for i in n_parcels if initial_landuse_types[i] == j)
+    problem += lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels)) >= initial_benefit1_totals[j]
+    problem += lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels)) >= initial_benefit2_totals[j]
+'''
+
+#problem += lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types)) >= initial_benefit1_total
+#problem += lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types)) >= initial_benefit2_total
+
+'''
+for j in range(n_landuse_types):
+    problem += (
+        lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels)) +
+        lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels))
+    ) >= sum(
+        benefit1_values[i][j] + benefit2_values[i][j]
+        for i in range(n_parcels) if initial_landuse_types[i] == j)
+    '''
+    
+    #for j in range(n_product_types):
+    # Marketing 1 constraint
+    #problem += lpSum(x[i][j] * marketing1_values[i][j] for i in range(n_locations)) >= sum(
+    #    marketing1_values[i][j] for i in range(n_locations) if initial_product_types[i] == j)
+
+    # Marketing 2 constraint
+   # problem += lpSum(x[i][j] * marketing2_values[i][j] for i in range(n_locations)) >= sum(
+    #    marketing2_values[i][j] for i in range(n_locations) if initial_product_types[i] == j)
+
+    
+#for i in range(n_parcels):
+  #   problem += lpSum(x[i][j] * benefit1_values[i][j] for i in n_parcels for j in n_landuse_types) >= sum(
+   #     benefit1_values[i][j] for i in n_parcels if initial_landuse_types[i] == j)
+    # problem += lpSum(x[i][j] * benefit2_values[i][j] for i in n_parcels for j in n_landuse_types) >= sum(
+     #    benefit2_values[i][j] for i in n_parcels if initial_landuse_types[i] == j)
 
 
 
@@ -80,10 +120,10 @@ if LpStatus[problem.status] == "Optimal":
     optimized_total_benefit1 = [sum(x[i][j].varValue * benefit1_values[i][j] for i in range(n_parcels)) for j in range(n_landuse_types)]
     optimized_total_benefit2 = [sum(x[i][j].varValue * benefit2_values[i][j] for i in range(n_parcels)) for j in range(n_landuse_types)]
 
-    print("Initial total benefit1/ESS1:", sum(initial_total_benefit1))
-    print("Optimized total benefit1/ESS1:", sum(optimized_total_benefit1))
-    print("Initial total Benefit2/ESS2:", sum(initial_total_benefit2))
-    print("Optimized total benefit2/ESS2:", sum(optimized_total_benefit2))
+    print("Initial total benefit1/ES1:", sum(initial_total_benefit1))
+    print("Optimized total benefit1/ES1:", sum(optimized_total_benefit1))
+    print("Initial total Benefit2/ES2:", sum(initial_total_benefit2))
+    print("Optimized total benefit2/ES2:", sum(optimized_total_benefit2))
     
 
 
