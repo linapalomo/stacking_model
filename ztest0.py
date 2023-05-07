@@ -21,11 +21,7 @@ costs = np.column_stack((np.zeros((10, 1)),costs1, costs2))
 # Generate random Land Uses
 initial_landuse_types = np.random.randint(0, 3, 10)
 
-
 # Generate random benefits/ESS values
-
-
-
 def generate_benefits(mean1, std_dev1, mean2, std_dev2, corr_coef, num_parcels):
     mean = [mean1, mean2]
     cov = [[std_dev1**2, corr_coef*std_dev1*std_dev2],
@@ -41,7 +37,7 @@ benefits_numbers = generate_benefits(mean1=12, std_dev1=2, mean2=19, std_dev2=1,
 benefit1 = benefits_numbers[:, 0]
 benefit2 = benefits_numbers[:, 1]
 
-print(benefit1, benefit2)
+#print(benefit1, benefit2)
 
 """benefit1 = np.random.normal(12, 2, size=10) #i can change the media a standard deviation
 benefit2 = np.random.normal(19, 1, size=10)"""
