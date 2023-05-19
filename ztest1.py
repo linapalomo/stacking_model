@@ -11,7 +11,7 @@ import seaborn as sns
 with open("dataz.json", "r") as f:
     data = json.load(f)
 
-n_parcels = 10
+n_parcels = 35
 n_landuse_types = 3
 
 initial_landuse_types = data["initial_landuse_types"]
@@ -19,10 +19,10 @@ costs = np.array(data["costs"])
 benefit1_values = np.array(data["benefit1_values"])
 benefit2_values = np.array(data["benefit2_values"])
 
-
+'''
 #printing a plot with the initial lnd use distribution for visual comparison
 def plot_landuse_grid(landuse_types, title):
-    landuse_grid = np.array(landuse_types).reshape(2, 5)
+    landuse_grid = np.array(landuse_types).reshape(2, 10)
     
     sns.heatmap(landuse_grid, annot=True, cmap="coolwarm", cbar=False, xticklabels=False, yticklabels=False, square=True, linewidths=1, linecolor='black', fmt="d")
     plt.title(title)
@@ -30,7 +30,7 @@ def plot_landuse_grid(landuse_types, title):
 
     
 plot_landuse_grid(initial_landuse_types, 'Initial Land Use Distribution')
-
+'''
 # Linear programming problem
 problem = LpProblem("Landuse_Optimization", LpMinimize)
 
@@ -57,16 +57,16 @@ if LpStatus[problem.status] == "Optimal":
         for j in range(n_landuse_types):
             if x[i][j].varValue == 1:
                 optimized_landuse_types.append(j)
-
-    print("Optimized Land Use distribution:", optimized_landuse_types)
+    print('initial land use distributiion:', initial_landuse_types)
+    print("Optimized Land Use distribution with LU restrictions:", optimized_landuse_types)
     print("Initial total costs:", sum(np.choose(initial_landuse_types, costs.T)))
     print("Optimized total costs:", sum(np.choose(optimized_landuse_types, costs.T)))
     print("Optimized total ES1:", sum(np.choose(optimized_landuse_types, benefit1_values.T)))
     print("Optimized total ES2:", sum(np.choose(optimized_landuse_types, benefit2_values.T)))
-
-
-
+    
+    
 else:
     print("Sad! The optimization problem is infeasible.")
     
-plot_landuse_grid(optimized_landuse_types, 'Optimized Land Use Distribution with no Land Use loss')
+
+'''plot_landuse_grid(optimized_landuse_types, 'Optimized Land Use Distribution with no Land Use loss')'''

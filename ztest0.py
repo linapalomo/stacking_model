@@ -10,53 +10,61 @@ import json
 #np.random.seed(0) #will keep the same number random generated in every run
 ####i have to change the seed number###
 
+with open('combinations.json') as f:
+    all_data = json.load(f)
+
+# Select the specific data set. For example, to select the first data set:
+data = all_data[0] #change for every data set , starts with 0 finish at 63
+mean_lu1=data[0][1]
+std_lu1=(data[0][2]*mean_lu1)
+mean_b1=data[0][3]
+std_b1=(data[0][4]*mean_b1)
+prop_lu1=data[0][5]
+proplu1_2=round(1-prop_lu1, 1)
+
+mean_lu2=data[1][1]
+std_lu2=(data[1][2]*mean_lu1)
+mean_b2=data[1][3]
+std_b2=(data[1][4]*mean_b1)
+prop_lu2=data[1][5]
+proplu2_2=round(1-prop_lu2, 1)
+
+num_parcels= 35
+landuse_types= 3
 # Generate random costs size here=parcels
 def generate_costs(mean, std_dev, num_parcels):
     return np.random.normal(mean, std_dev, num_parcels)
 
-costs1 = generate_costs(300, 10, 10)
-costs2= generate_costs(100, 8, 10)
-costs = np.column_stack((np.zeros((10, 1)),costs1, costs2))
+costs1 = generate_costs(mean_lu1, std_lu1, num_parcels)
+costs2= generate_costs(mean_lu2, std_lu2, num_parcels)
+costs = np.column_stack((np.zeros((num_parcels, 1)),costs1, costs2))
 
 # Generate random Land Uses
-initial_landuse_types = np.random.randint(0, 3, 10)
-
-# Generate random benefits/ESS values
-def generate_benefits(mean1, std_dev1, mean2, std_dev2, corr_coef, num_parcels):
-    mean = [mean1, mean2]
-    cov = [[std_dev1**2, corr_coef*std_dev1*std_dev2],
-           [corr_coef*std_dev1*std_dev2, std_dev2**2]]
-    
-
-    benefit1, benefit2 = np.random.multivariate_normal(mean, cov, num_parcels).T
-
-    return np.column_stack((benefit1, benefit2))
-
-benefits_numbers = generate_benefits(mean1=12, std_dev1=2, mean2=19, std_dev2=1, corr_coef=0.8, num_parcels=10)
-
-benefit1 = benefits_numbers[:, 0]
-benefit2 = benefits_numbers[:, 1]
+initial_landuse_types = np.random.randint(0, landuse_types,num_parcels)
 
 #print(benefit1, benefit2)
+def generate_benefit(mean_b1, std_dev, num_parcels):
+    return np.random.normal(mean_b1, std_dev, num_parcels)
 
-"""benefit1 = np.random.normal(12, 2, size=10) #i can change the media a standard deviation
-benefit2 = np.random.normal(19, 1, size=10)"""
+benefit1 = generate_costs(mean_b1, std_b1, num_parcels)
+benefit2= generate_costs(mean_b2, std_b2, num_parcels)
+
 
 # Calculate benefit1 and benefit2 values
-benefit1_values = np.zeros((10, 3))
-benefit2_values = np.zeros((10, 3))
+benefit1_values = np.zeros((num_parcels, landuse_types))
+benefit2_values = np.zeros((num_parcels, landuse_types))
 
 #i can change the proportions for the benefits any time
 proportions = {
-    "LU1":[0,0.3,0.7],
-    "LU2":[0,0.4,0.6]
+    "LU1":[0,prop_lu1,proplu1_2],
+    "LU2":[0,prop_lu2,proplu2_2]
 }
    
 
-for i in range(10):
+for i in range(num_parcels):
     for j in range(1,3):
         LU1_p = proportions['LU1'][j]
-        LU2_p = proportions["LU2"][j]
+        LU2_p = proportions['LU2'][j]
         benefit1_values[i][j]=benefit1[i] * LU1_p
         benefit2_values[i][j]=benefit1[i] * (1-LU1_p)
         benefit1_values[i][j]=benefit2[i] * LU2_p
@@ -85,5 +93,6 @@ print("Current ES2:", np.choose(initial_landuse_types, benefit2_values.T))
 print("Total ES1:", sum(np.choose(initial_landuse_types, benefit1_values.T)))
 print("Total ES2:", sum(np.choose(initial_landuse_types, benefit2_values.T)))
 
+    
 
 #print(type(data))
