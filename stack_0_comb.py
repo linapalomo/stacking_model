@@ -4,9 +4,9 @@ import json
 # Define the options for each variable
 lu_types = ['LU1', 'LU2']
 mean_lu = [300, 100]
-std_dev_lu = [0.25]
+std_dev_lu = [0.50]
 benefit_mean = [10, 30]
-std_dev_b=[0.25]
+std_dev_b=[0.50]
 proportion_options = [0.8, 0.2]
 
 

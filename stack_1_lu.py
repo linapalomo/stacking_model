@@ -4,15 +4,13 @@
 import json
 import numpy as np
 from pulp import LpProblem, LpMinimize, LpVariable, LpStatus, lpSum
-import matplotlib.pyplot as plt
-import seaborn as sns
 from collections import Counter
 
 # Load initial data
 with open("dataz.json", "r") as f:
     data = json.load(f)
 
-n_parcels = 50
+n_parcels = 48
 n_landuse_types = 3
 
 initial_landuse_types = data["initial_landuse_types"]
@@ -20,18 +18,7 @@ costs = np.array(data["costs"])
 benefit1_values = np.array(data["benefit1_values"])
 benefit2_values = np.array(data["benefit2_values"])
 
-'''
-#printing a plot with the initial lnd use distribution for visual comparison
-def plot_landuse_grid(landuse_types, title):
-    landuse_grid = np.array(landuse_types).reshape(2, 10)
-    
-    sns.heatmap(landuse_grid, annot=True, cmap="coolwarm", cbar=False, xticklabels=False, yticklabels=False, square=True, linewidths=1, linecolor='black', fmt="d")
-    plt.title(title)
-    plt.show()
 
-    
-plot_landuse_grid(initial_landuse_types, 'Initial Land Use Distribution')
-'''
 # Linear programming problem
 problem = LpProblem("Landuse_Optimization", LpMinimize)
 
@@ -76,4 +63,3 @@ else:
     print("Sad! The optimization problem is infeasible.")
     
 
-'''plot_landuse_grid(optimized_landuse_types, 'Optimized Land Use Distribution with no Land Use loss')'''

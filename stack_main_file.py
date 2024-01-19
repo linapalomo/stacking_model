@@ -11,7 +11,7 @@ keyword = "Result - "  # specific keyword or pattern to match
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")  # Format: YYYYMMDD_HHMMSS
 
 # Create a new Excel file with the unique file name
-file_name = f"output37a_{timestamp}.xlsx"
+file_name = f"output63_nuevo_50final_{timestamp}.xlsx"
 workbook = openpyxl.Workbook()
 worksheet = workbook.active
 
@@ -23,13 +23,13 @@ data_to_save = {
 }
 
 
-row = 1
+'''row = 1
 col = 1
 for file, data_fields in data_to_save.items():
     worksheet.cell(row=row, column=col, value=file)
     for idx, field in enumerate(data_fields, start=1):
         worksheet.cell(row=row+idx, column=col, value=field)
-    col += 2
+    col += 2'''
 
 for i in range(num_runs):
     row = 1
@@ -49,7 +49,7 @@ for i in range(num_runs):
                         relevant_output.append(line)
                     break
                 
-        if file == "stack_0_distr.py" and i == 0:  # Add additional outputs only in the first run of ztest0
+        """if file == "stack_0_distr.py" and i == 0:  # Add additional outputs only in the first run of ztest0
             additional_outputs = ["mean_lu1:","mean_lu2:", "mean benefitLU1:", "mean benefitLU2:","Proportion LU1:","Proportion LU2:"]
             if "mean_lu1:" in relevant_output:
                 meanlu1 = float(relevant_output[relevant_output.index("mean_lu1") + 1])
@@ -76,7 +76,7 @@ for i in range(num_runs):
                 additional_outputs.append(f"mean benefitLU2: {prop_lu2}")
 
             relevant_output.extend(additional_outputs)
-
+"""
         row += len(data_fields) + 1
         for idx, value in enumerate(relevant_output, start=1):
             worksheet.cell(row=row+idx, column=(i*2)+2, value=value)

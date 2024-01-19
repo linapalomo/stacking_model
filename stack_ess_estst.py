@@ -1,4 +1,5 @@
-#ESS benefits model
+#ESS TEST
+########TEST####
 ##WORKING COMPLETE
 #this model will optimise the land use distribution costs with the restriction that the ESS (benefits in the code)
 # will stay the same amount or it will increase. Not net loss.
@@ -7,34 +8,31 @@ from pulp import LpProblem, LpMinimize, LpVariable, lpSum, LpStatus, LpBinary
 import numpy as np
 from collections import Counter
 
-# Load data from JSON file
-with open("dataz.json", "r") as infile:
-    data = json.load(infile)
+    
+# Load initial data
+with open("dataz.json", "r") as f:
+    data = json.load(f)
 
-costs = data["costs"]
-initial_landuse_types = data["initial_landuse_types"]
-#benefit1 = data["benefitLU1"]
-#benefit2= data["benefitLU2"]
-benefit1_values = data["benefit1_values"]
-benefit2_values = data["benefit2_values"]
-
-n_parcels = 48
+n_parcels = 21
 n_landuse_types = 3
 
+initial_landuse_types = data["initial_landuse_types"]
+costs = np.array(data["costs"])
+benefit1_values = np.array(data["benefit1_values"])
+benefit2_values = np.array(data["benefit2_values"])
 
-# Optimization problem
-problem = LpProblem("Minimize_Total_Costs", LpMinimize)
+
+# Linear programming problem
+problem = LpProblem("Landuse_Optimization", LpMinimize)
 
 # Decision variables
-x = [[LpVariable(f"x_{i}_{j}", cat=LpBinary) for j in range(n_landuse_types)] for i in range(n_parcels)]
+x = [[LpVariable(f"x_{i}_{j}", 0, 1, cat="Integer") for j in range(n_landuse_types)] for i in range(n_parcels)]
 
 # Objective function
 problem += lpSum(x[i][j] * costs[i][j] for i in range(n_parcels) for j in range(n_landuse_types))
 
-
 #initial_benefit1_total = sum(benefit1_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types))
 #initial_benefit2_total = sum(benefit2_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types))
-
 
 
 # Constraints
@@ -42,8 +40,9 @@ for i in range(n_parcels):
     problem += lpSum(x[i][j] for j in range(n_landuse_types)) == 1
     
 # i think is finally working this one
-initial_total_benefit1 = sum(benefit1_values[i][initial_landuse_types[i]] for i in range(n_parcels))
-initial_total_benefit2 = sum(benefit2_values[i][initial_landuse_types[i]] for i in range(n_parcels))
+initial_total_benefit1 = [sum(benefit1_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j) for j in range(n_landuse_types)]
+initial_total_benefit2 = [sum(benefit2_values[i][j] for i in range(n_parcels) if initial_landuse_types[i] == j) for j in range(n_landuse_types)]
+
 
 problem += lpSum(x[i][j] * benefit1_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types)) >= initial_total_benefit1
 problem += lpSum(x[i][j] * benefit2_values[i][j] for i in range(n_parcels) for j in range(n_landuse_types)) >= initial_total_benefit2
@@ -90,3 +89,4 @@ if LpStatus[problem.status] == "Optimal":
 else:
     print("Sad!. The optimization problem is infeasible.")
     
+'''plot_landuse_grid(optimized_landuse_types, 'Optimized Land Use Distribution with no ESS loss')'''
