@@ -1,4 +1,4 @@
-#ESS benefits model
+#Offsetting scheme with fixed ESS trading.
 ##WORKING COMPLETE
 #this model will optimise the land use distribution costs with the restriction that the ESS (benefits in the code)
 # will stay the same amount or it will increase. Not net loss.

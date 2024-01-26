@@ -1,5 +1,6 @@
-#landuse model
-#this model will optimise the landuse distribution keeping the original land use values
+#Offsetting scheme with fixed land use trading
+#Code to simulate the offsetting schem with fixed land use trading.
+#this model will optimise the landuse distribution keeping the original land use values.
 ####WORKING COMPLETE    ###
 import json
 import numpy as np

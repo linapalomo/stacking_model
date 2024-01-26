@@ -1,4 +1,9 @@
-# run_scripts.py
+# MAIN FILE. 
+#THIS FILE RUNS ALL THE THREE FILES OF THE SIMULATION.
+#1. Runs the distribution file 0 that generates the random landscape.
+#2. runs the first offsetting scheme with fixed land use trading.
+#3. runs the second offsetting scheme with fixed ESS trading.
+#4. saves the results for every combination in an excel file. 
 
 import subprocess
 import openpyxl

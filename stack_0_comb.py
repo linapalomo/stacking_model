@@ -1,12 +1,12 @@
 import itertools
 import json
-
+#This files generates the 64 combinations ofecological and economic paramaters for the simulaton model
 # Define the options for each variable
 lu_types = ['LU1', 'LU2']
 mean_lu = [300, 100]
-std_dev_lu = [0.50]
+std_dev_lu = [0.50] #must be changed to simulate both variabilities (0.25 and 0.50)
 benefit_mean = [10, 30]
-std_dev_b=[0.50]
+std_dev_b=[0.50] #must be changed to simulate both variabilities (0.25 and 0.50)
 proportion_options = [0.8, 0.2]
 
 

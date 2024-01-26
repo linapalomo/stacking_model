@@ -1,6 +1,9 @@
-#initial data
+#INITIAL DATA.-RANDOMLY GENERATED LANDSCAPE
 #this file will create the random data and the data will be stored in a JSON file called data.py
 #the data can be visible in the data frame file called "test_df.py"
+#This code generates the random landscape with random landuses. In the line 14 there is the set of data
+# with the combination of parameters used for every run.
+### The set of combination of parameters can changed in the line 14. Start with 0 finishes with 63.
 ###WORKING COMPLETE###
 
 import numpy as np
@@ -10,7 +13,7 @@ with open('combinations.json') as f:
     all_data = json.load(f)
 
 # Select the specific data set. 
-data = all_data[61] #change for every data set , starts with 0 finish at 63
+data = all_data[0] #change for every data set , starts with 0 finish at 63
 mean_lu1=data[0][1]
 std_lu1=(data[0][2]*mean_lu1)
 mean_b1=data[0][3]
